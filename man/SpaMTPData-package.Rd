@@ -2,6 +2,7 @@
 % Please edit documentation in R/SpaMTPData-package.R
 \docType{package}
 \name{SpaMTPData-package}
+\alias{SpaMTPData}
 \alias{SpaMTPData-package}
 \title{SpaMTPData: ExperimentHub data for SpaMTP}
 \description{

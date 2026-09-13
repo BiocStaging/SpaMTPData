@@ -1,0 +1,82 @@
+[
+  {
+    "record_url": "https://zenodo.org/records/17246900",
+    "doi": "10.5281/zenodo.17246900",
+    "title": "SpaMTP: Multi-Omics Mouse Brain dataset",
+    "creators": [
+      {
+        "name": "Causer, Andrew",
+        "affiliation": null,
+        "orcid": "0009-0001-7341-8366"
+      }
+    ],
+    "license": {
+      "id": "cc-by-4.0"
+    },
+    "references": []
+  },
+  {
+    "record_url": "https://zenodo.org/records/17246684",
+    "doi": "10.5281/zenodo.17246684",
+    "title": "SpaMTP: Mouse Bladder dataset",
+    "creators": [
+      {
+        "name": "Causer, Andrew",
+        "affiliation": null,
+        "orcid": "0009-0001-7341-8366"
+      }
+    ],
+    "license": {
+      "id": "cc-by-4.0"
+    },
+    "references": []
+  },
+  {
+    "record_url": "https://zenodo.org/records/17247007",
+    "doi": "10.5281/zenodo.17247007",
+    "title": "SpaMTP: Single Cell Multi-Omics Synthetic dataset",
+    "creators": [
+      {
+        "name": "Causer, Andrew",
+        "affiliation": null,
+        "orcid": "0009-0001-7341-8366"
+      }
+    ],
+    "license": {
+      "id": "cc-by-4.0"
+    },
+    "references": []
+  },
+  {
+    "record_url": "https://zenodo.org/records/18282678",
+    "doi": "10.5281/zenodo.18282678",
+    "title": "SpaMTP: Human Brain Tissue Single Cell dataset",
+    "creators": [
+      {
+        "name": "Causer, Andrew",
+        "affiliation": null,
+        "orcid": "0009-0001-7341-8366"
+      },
+      {
+        "name": "Freytag, Saskia",
+        "affiliation": null,
+        "orcid": "0000-0002-2185-7068"
+      },
+      {
+        "name": "Lu, Tianyao",
+        "affiliation": null
+      },
+      {
+        "name": "Whittle, James",
+        "affiliation": null,
+        "orcid": "0000-0002-4740-2037"
+      }
+    ],
+    "license": {
+      "id": "cc-by-4.0"
+    },
+    "references": [
+      "https://doi.org/10.1038/s41591-025-03884-4"
+    ]
+  }
+]

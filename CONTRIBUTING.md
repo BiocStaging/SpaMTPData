@@ -8,7 +8,7 @@ For a data update:
 
 1. Publish the processed resource and its generation recipe.
 2. Record the stable URL, byte size, MD5 checksum, species, genome, and class.
-3. Update `inst/extdata/resource_manifest.csv` and `metadata.csv`.
+3. Update `inst/manifest/resource_manifest.csv` and `inst/extdata/metadata.csv`.
 4. Run the metadata validator, `R CMD check`, and `BiocCheck::BiocCheck()`.
 
 Do not commit large experiment files or credentials to Git.

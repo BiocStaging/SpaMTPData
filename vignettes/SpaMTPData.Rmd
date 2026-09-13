@@ -1,7 +1,7 @@
 ---
 title: "Accessing SpaMTP Experiment Data"
 author: "Tianyao Lu"
-date: "2026-08-14"
+date: "`r Sys.Date()`"
 output:
   BiocStyle::html_document:
     toc: true
@@ -17,42 +17,122 @@ vignette: >
 through ExperimentHub. The package itself remains small and users download only
 the resources required for a particular workflow.
 
+The submission API uses camelCase function names. Install SpaMTPData >= 0.99.4,
+SpaMTPdb >= 0.99.3 and SpaMTP >= 0.99.4 together to replace the historical API.
+Package versions and the version of a published dataset are independent.
+
 ```{r setup}
 library(SpaMTPData)
-resources <- SpaMTPDataResources()
-resources[c("resource", "version", "category")]
+resources <- spaMTPDataResources(version = "latest")
+resources[c("resource", "version", "category", "r_data_class", "requires_conversion")]
+spaMTPDataVersion()
 ```
 
-# Loading a dataset
+# A native example without downloads
+
+`spaMTPExampleData()` constructs a small, deterministic synthetic
+SpatialExperiment. It is not a biological dataset and does not load Seurat.
+Use it to check the container interface or run the three-package workflow
+demonstrated in SpaMTP's `SpaMTP_Companion_Workflow` vignette.
+
+```{r native-example}
+spe <- spaMTPExampleData()
+SummarizedExperiment::assayNames(spe)
+SummarizedExperiment::rowData(spe)$mz
+SummarizedExperiment::colData(spe)$region
+SpatialExperiment::spatialCoords(spe)
+SingleCellExperiment::altExpNames(spe)
+
+core <- spe[, spe$region == "core"]
+stopifnot(identical(colnames(SingleCellExperiment::altExp(core, "transcriptome")),
+  colnames(core)))
+```
+
+# Published native datasets
+
+The maintainer recipe `inst/scripts/prepare-native-resources.R` extracts the
+seven archival Seurat datasets into native release `1.1.0`, now published in
+[Zenodo record 22733262](https://zenodo.org/records/22733262).
+It retains counts/data, feature and pixel annotations, image-centroid
+coordinates and paired transcriptomes. The resulting SpatialExperiment RDS
+can be read directly without Seurat or any further conversion:
+
+```{r published-native, eval=FALSE}
+striatum <- spaMTPData("mouse_brain_dhb_striatum", version = "1.1.0")
+SummarizedExperiment::assayNames(striatum)
+SpatialExperiment::spatialCoords(striatum)
+SingleCellExperiment::altExpNames(striatum) # SPT
+```
+
+This downloading example is not evaluated during a package build. The
+accompanying native manifest records source and output hashes. Optical rasters,
+polygons, graphs, reductions and Seurat-specific weight objects are omitted;
+the retained `data` layer is not reinterpreted as log-normalized expression.
+The simulated datasets retain their explicit synthetic status.
+
+The resource API selects `1.1.0` by default. Native files have new filenames
+and checksums and are not substituted under an old archive's identity.
+Use `version = "1.0.0"` to request the original immutable archives explicitly.
+Hub ingestion is separate from publication and package metadata registration.
+
+The native files are published in the same Zenodo version family as
+SpaMTPdb's annotation resources. SpaMTPdb coordinates file publication;
+SpaMTPData retains experimental resource ownership, documentation and reading.
+There is no runtime dependency between the two data packages. Registration of
+a published native release preserves the 1.0.0 history and carries forward all
+18 resources, including eleven unchanged files at their original locations.
+
+# Loading a published native dataset
 
 Inspect the mouse brain/DHB record without downloading the object:
 
 ```{r inspect-resource}
-striatum_metadata <- SpaMTPData(
+striatum_metadata <- spaMTPData(
   "mouse_brain_dhb_striatum",
   metadata = TRUE
 )
-striatum_metadata[c("resource", "version", "bytes")]
+striatum_metadata[c("resource", "version", "r_data_class", "bytes")]
+stopifnot(striatum_metadata$r_data_class == "SpatialExperiment",
+  !striatum_metadata$requires_conversion)
 ```
 
-After ExperimentHub ingestion, omit `metadata = TRUE` to retrieve and cache the
-object:
+Omit `metadata = TRUE` to retrieve and cache the native object. ExperimentHub
+is preferred; an immutable source-URL fallback is available before ingestion:
 
 ```r
-striatum <- SpaMTPData("mouse_brain_dhb_striatum")
+striatum <- spaMTPData("mouse_brain_dhb_striatum")
 ```
+
+This default file is a SpatialExperiment and does not need Seurat. Historical
+metadata can be inspected without downloading the old Seurat object:
+
+```{r inspect-historical-resource}
+historical <- spaMTPData("mouse_brain_dhb_striatum",
+  version = "1.0.0", metadata = TRUE)
+historical[c("resource", "version", "r_data_class", "requires_conversion")]
+```
+
+Historical entries marked `requires_conversion = TRUE` need explicit
+conversion at the SpaMTP workflow boundary. Downloading an old file does not
+update its scientific processing. Its class and checksum remain unchanged.
 
 The same interface can use a previously downloaded local file:
 
 ```r
 options(SpaMTPData.resource_dir = "/path/to/SpaMTPData-files")
-striatum <- SpaMTPData("mouse_brain_dhb_striatum", offline = TRUE)
+striatum <- spaMTPData("mouse_brain_dhb_striatum", offline = TRUE)
 ```
+
+Local files and caches are verified against the recorded size and MD5.
+`offline = TRUE` also uses previously verified download-cache entries; it never
+queries ExperimentHub or Zenodo. A missing or invalid file is an error, not a
+reason to silently use another version. `verify = FALSE` permits intentional
+local development fixtures but does not bypass object-class validation.
 
 The explicit resource accessor follows the same interface:
 
 ```{r explicit-accessor}
-SpaMTPDataResource(
+spaMTPDataResource(
   "mouse_brain_dhb_striatum",
   metadata = TRUE
 )

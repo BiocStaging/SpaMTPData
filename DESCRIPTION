@@ -1,8 +1,8 @@
 Package: SpaMTPData
 Type: Package
 Title: Experiment Data Resources for SpaMTP Workflows
-Version: 0.99.0
-Date: 2026-08-14
+Version: 0.99.4
+Date: 2026-09-13
 Authors@R: c(
     person("Tianyao", "Lu",
            email = "lu.t@wehi.edu.au",
@@ -14,8 +14,14 @@ Description: Provides lightweight, version-aware access to spatial
     metabolomics and multi-omics experiment data used in SpaMTP workflows.
     Resources cover mouse brain, mouse urinary bladder, simulated single-cell
     multi-omics, annotation-refinement, and human brain examples. Large files
-    are retrieved and cached through ExperimentHub rather than stored in the
-    package repository.
+    are retrieved through ExperimentHub or verified source-URL caches rather
+    than stored in the package repository. A small deterministic synthetic SpatialExperiment
+    with a paired transcriptome supports offline examples and interoperability
+    tests. Native SpatialExperiment datasets are available in a separate
+    resource release; historical archival objects retain their original
+    representations. Conversion and analysis are handled by the SpaMTP
+    software package. Native experimental files share a Zenodo version family
+    with SpaMTPdb without coupling the packages at runtime.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Depends:
@@ -24,12 +30,16 @@ Imports:
     AnnotationHub,
     ExperimentHub,
     S4Vectors,
+    SingleCellExperiment,
+    SpatialExperiment,
     utils
 Suggests:
     BiocStyle,
     ExperimentHubData,
+    jsonlite,
     knitr,
     rmarkdown,
+    SummarizedExperiment,
     testthat (>= 3.0.0)
 biocViews: ExperimentData, ExperimentHub, Homo_sapiens_Data,
     Mus_musculus_Data, ReproducibleResearch

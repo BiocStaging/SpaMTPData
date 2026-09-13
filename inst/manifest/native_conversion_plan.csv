@@ -1,0 +1,8 @@
+resource,primary_assay,alternative_assays,image,modality,synthetic
+mouse_brain_visium,Spatial,,slice1,transcriptome,FALSE
+mouse_brain_fmp10,Spatial,,fov,metabolome,FALSE
+mouse_brain_dhb_striatum,SPM,SPT,slice1,metabolome,FALSE
+mouse_bladder_annotated,Spatial,,fov,metabolome,FALSE
+simulated_xenium,Xenium,,centroids,transcriptome,TRUE
+simulated_maldi,Spatial,,fov,metabolome,TRUE
+human_brain_integrated,SPM,SPT,image,metabolome,FALSE

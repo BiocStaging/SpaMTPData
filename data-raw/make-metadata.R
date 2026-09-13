@@ -1,9 +1,10 @@
 #!/usr/bin/env Rscript
 
-if (!requireNamespace("ExperimentHubData", quietly = TRUE)) {
-    stop("Install ExperimentHubData before validating Hub metadata.")
-}
-script_arg <- grep("^--file=", commandArgs(), value = TRUE)[1L]
-script_path <- sub("^--file=", "", script_arg)
-package_root <- normalizePath(file.path(dirname(script_path), ".."), mustWork = TRUE)
-ExperimentHubData::makeExperimentHubMetadata(package_root)
+# Delegate to the shipped recipe so the two entry points cannot drift.
+argument <- grep("^--file=", commandArgs(), value = TRUE)[1L]
+script <- normalizePath(sub("^--file=", "", argument), mustWork = TRUE)
+recipe <- normalizePath(file.path(dirname(script), "..", "inst", "scripts",
+    "make-metadata.R"), mustWork = TRUE)
+status <- system2(file.path(R.home("bin"), "Rscript"),
+    c(shQuote(recipe), shQuote(commandArgs(trailingOnly = TRUE))))
+quit(save = "no", status = status)
