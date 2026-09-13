@@ -1,5 +1,15 @@
 # SpaMTPData
 
+SpaMTPData >= 0.99.5 attaches declared species and resource provenance to loaded
+native experiments and their nested `altExp()` objects in
+`metadata(x)$SpaMTPData`. Species checks therefore survive extracting a paired
+transcriptome, while explicit child species declarations are retained.
+SpaMTP >= 0.99.5 can use these
+fields when annotating genes with `annotateGeneIdentifiers()`, whose HGNC
+reference is provided by SpaMTPdb >= 0.99.4. Human HGNC mapping is rejected for
+experiments declared as mouse; it does not perform orthology conversion.
+The published experiment files, their hashes and resource versions are preserved.
+
 `SpaMTPData` provides ExperimentHub access to the datasets used by
 [`SpaMTP`](https://github.com/SpaMTP-project/SpaMTP) tutorials and
 tests. SpatialExperiment datasets, Cardinal experiments and auxiliary files

@@ -1,3 +1,13 @@
+# SpaMTPData 0.99.5
+
+* Loaded native experiments now retain resource version, checksum, organism,
+  taxonomy ID and genome in `metadata(x)$SpaMTPData`. Analysis workflows can
+  validate gene-reference species without guessing from gene capitalization.
+  Published resource files, versions, assays and coordinates are unchanged.
+* Propagated this provenance to nested alternative experiments using public
+  accessors, preserving species checks after `altExp()` extraction. Explicit
+  child species declarations are retained; assays and alignment are unchanged.
+
 # SpaMTPData 0.99.4
 
 * Registered native resource release 1.1.0 from published Zenodo record

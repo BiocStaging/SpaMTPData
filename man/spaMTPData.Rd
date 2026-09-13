@@ -60,6 +60,12 @@ explicitly at the SpaMTP workflow boundary, or use \code{\link[=spaMTPExampleDat
 a small native example that needs neither Seurat nor network access.
 Local files and a verified download cache are checked before any Hub query.
 Existing immutable files retain their original classes and checksums.
+Loaded native experiments additionally carry \code{metadata(x)$SpaMTPData}
+with registry provenance and species, enabling analysis packages to check
+annotation compatibility. Assays, row names and coordinates are preserved.
+Provenance is also carried by nested \code{altExp()} experiments so that species
+checks survive extracting a paired transcriptome. Explicit species metadata
+already declared by a child experiment is retained rather than relabelled.
 }
 \examples{
 spaMTPData("mouse_brain_dhb_striatum", metadata = TRUE)

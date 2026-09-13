@@ -105,6 +105,39 @@
     path
 }
 
+.spamtpdata_add_provenance <- function(value, provenance, inherited = FALSE) {
+    if (inherited) {
+        existing <- S4Vectors::metadata(value)
+        species_fields <- c("organism", "taxonomy_id", "genome")
+        declared <- lapply(species_fields, function(field) {
+            own <- existing$SpaMTPData[[field]]
+            if (is.null(own)) own <- existing[[field]]
+            own
+        })
+        names(declared) <- species_fields
+        present <- vapply(declared, function(x) {
+            length(x) > 0L && any(!is.na(x) & nzchar(as.character(x)))
+        }, logical(1))
+        # An explicitly different child (e.g. a spike-in experiment) must not
+        # inherit the parent species' taxonomy or genome assembly.
+        if (present[["organism"]] &&
+            !identical(declared$organism, provenance$organism)) {
+            provenance[species_fields] <- NULL
+        }
+        provenance[names(declared)[present]] <- declared[present]
+    }
+    S4Vectors::metadata(value)$SpaMTPData <- provenance
+    if (inherits(value, "SingleCellExperiment")) {
+        # Numeric indices also cover unnamed or duplicated altExp names.
+        for (i in seq_along(SingleCellExperiment::altExpNames(value))) {
+            child <- SingleCellExperiment::altExp(value, i)
+            SingleCellExperiment::altExp(value, i) <-
+                .spamtpdata_add_provenance(child, provenance, inherited = TRUE)
+        }
+    }
+    value
+}
+
 .spamtpdata_check_class <- function(value, row) {
     if (identical(row$dispatch_class[[1L]], "FilePath")) {
         valid <- is.character(value) && length(value) == 1L &&
@@ -117,6 +150,20 @@
         stop("Resource '", row$resource, "' has class ",
              paste(class(value), collapse = "/"), "; expected ", row$r_data_class,
              ".", call. = FALSE)
+    }
+    if (inherits(value, "SummarizedExperiment")) {
+        metadata_path <- system.file("extdata", "metadata.csv", package = "SpaMTPData")
+        registry <- utils::read.csv(metadata_path, stringsAsFactors = FALSE)
+        match_row <- if ("title" %in% names(row)) match(row$title, registry$Title) else NA_integer_
+        field <- function(name) if (name %in% names(row)) row[[name]][[1L]] else NULL
+        provenance <- list(resource = field("resource"), version = field("version"),
+            source_url = field("source_url"), md5 = field("md5"))
+        if (length(match_row) == 1L && !is.na(match_row)) {
+            provenance$organism <- registry$Species[match_row]
+            provenance$taxonomy_id <- registry$TaxonomyId[match_row]
+            provenance$genome <- registry$Genome[match_row]
+        }
+        value <- .spamtpdata_add_provenance(value, provenance)
     }
     value
 }
@@ -215,6 +262,12 @@ spaMTPDataResources <- function(version = NULL, category = NULL) {
 #' a small native example that needs neither Seurat nor network access.
 #' Local files and a verified download cache are checked before any Hub query.
 #' Existing immutable files retain their original classes and checksums.
+#' Loaded native experiments additionally carry `metadata(x)$SpaMTPData`
+#' with registry provenance and species, enabling analysis packages to check
+#' annotation compatibility. Assays, row names and coordinates are preserved.
+#' Provenance is also carried by nested `altExp()` experiments so that species
+#' checks survive extracting a paired transcriptome. Explicit species metadata
+#' already declared by a child experiment is retained rather than relabelled.
 #'
 #' @param resource Resource name; see [spaMTPDataResources()].
 #' @param version Data release version or `"latest"`.

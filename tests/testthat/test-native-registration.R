@@ -70,7 +70,17 @@ test_that("the existing API can read native resources without a database-package
     local_mocked_bindings(.spamtpdata_manifest = function() manifest)
     expect_equal(nrow(spaMTPDataResources(version = "latest")), 18L)
     for (resource in f$native$resource) {
-        expect_identical(spaMTPData(resource, local_dir = path, offline = TRUE), f$object)
+        observed <- spaMTPData(resource, local_dir = path, offline = TRUE)
+        provenance <- S4Vectors::metadata(observed)$SpaMTPData
+        expect_identical(provenance$resource, resource)
+        expect_identical(provenance$version, "1.1.0")
+        expect_identical(provenance$md5, f$native$md5[match(resource, f$native$resource)])
+        child <- SingleCellExperiment::altExp(observed, "transcriptome")
+        expect_identical(S4Vectors::metadata(child)$SpaMTPData, provenance)
+        S4Vectors::metadata(child)$SpaMTPData <- NULL
+        SingleCellExperiment::altExp(observed, "transcriptome") <- child
+        S4Vectors::metadata(observed)$SpaMTPData <- NULL
+        expect_identical(observed, f$object)
     }
     historical <- spaMTPData(f$native$resource[1L], version = "1.0.0", metadata = TRUE)
     expect_identical(historical$r_data_class, "Seurat")
